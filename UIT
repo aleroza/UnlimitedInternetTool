@@ -1,0 +1,41 @@
+#!/bin/bash
+
+LOGFILE=/home/aleroza/UI.log
+
+usage(){
+	echo "usb for usb"	
+}
+
+usb(){
+	TARGETSIZE=50
+	CERRENTSIZE=$(stat -c%s "$LOGFILE")
+
+	if (( TARGETSIZE > CERRENTSIZE )); then
+
+	sleep 5
+	echo "echo "fl" > /home/aleroza/UI.log;
+	/usr/bin/adb devices >> /home/aleroza/UI.log;
+	/usr/bin/adb shell service call connectivity 33 i32 1 s16 text >> /home/aleroza/UI.log;
+	echo "ll" >> /home/aleroza/UI.log" | at now;
+	fi
+}
+
+usb
+
+
+
+while [ "1" != "0" ]; do
+    case $1 in
+        -usb)                   usb
+                                ;;
+        -h | --help )           usage
+                                exit
+                                ;;
+        * )                     usage
+                                exit 1
+    esac
+    shift
+done
+
+
+
