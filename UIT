@@ -1,33 +1,55 @@
 #!/bin/bash
-
-LOGFILE=/home/aleroza/UI.log
+serial="29e32ae4"
+logfile=/home/aleroza/UI.log
 
 usage(){
-	echo "usb for usb"	
+	echo "UIT — simple program for (advanced) mobile tethering
+	-usb [start|stop] for enabling USB-tether through ADB."	
+}
+
+settings(){
+	echo "lol TODO"
 }
 
 usb(){
-	TARGETSIZE=50
-	CERRENTSIZE=$(stat -c%s "$LOGFILE")
-
-	if (( TARGETSIZE > CERRENTSIZE )); then
-
-	sleep 5
-	echo "echo "fl" > /home/aleroza/UI.log;
-	/usr/bin/adb devices >> /home/aleroza/UI.log;
-	/usr/bin/adb shell service call connectivity 33 i32 1 s16 text >> /home/aleroza/UI.log;
-	echo "ll" >> /home/aleroza/UI.log" | at now;
+	if [[ "$param" == "start" ]];then
+		targetsize=50
+		currentsize=$(stat -c%s "$logfile")
+		if [ -z "$currentsize" ] || [ "$currentsize" -lt "$targetsize" ]; then
+			echo "sleep 2; /usr/bin/adb devices > \"$logfile\";
+			/usr/bin/adb shell service call connectivity 33 i32 1 s16 text >> \"$logfile\"" | at now;
+		fi
+	elif [[ "$param" == "stop" ]]; then
+		sleep 3
+		if [ -z "$(usb-devices | grep -i "$serial")" ];then
+			rm "$logfile"
+			#FIX REMOVE RULE
+		fi
 	fi
 }
 
-usb
+ttl(){
+	sudo iptables -t mangle -F
+	sudo ip6tables -t mangle -F
+
+	ping google.com -c 3
+
+	sudo iptables -t mangle -A POSTROUTING -j TTL --ttl-set 65
+	sudo ip6tables -t mangle -A POSTROUTING -j HL --hl-set 65
+}
 
 
-
-while [ "1" != "0" ]; do
+if [ -z "$1" ];then 
+	usage 
+fi
+while [ -n "$1" ]; do
     case $1 in
-        -usb)                   usb
+        -usb)                   param="$2"
+								shift
+								usb
                                 ;;
+#        -ttl)                   ttl
+#                                ;;
         -h | --help )           usage
                                 exit
                                 ;;
@@ -36,6 +58,3 @@ while [ "1" != "0" ]; do
     esac
     shift
 done
-
-
-
